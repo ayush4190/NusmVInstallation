@@ -13,15 +13,10 @@ passengerButtonDown : boolean;
 driverUp: boolean ;
 driverDown: boolean;
 continuouspress : boolean;
-Timer:integer;
+
 
 ASSIGN
-init(postion): =0;
-init(obstacle): = FALSE ;
-init(passengerButtonUp): = FALSE ;
-init(passengerButtonDown): = FALSE ;
-init(driverUp): = FALSE ;
-init(driverDown): = FALSE ;
+init(postion) :=0;
 
 TRANS
 case
@@ -45,13 +40,16 @@ driverDown  & (postion != 0): next(postion) = postion - 2;
 
 --considering all the cases with passenger side
 
-passengerButtonUp  & (postion != 10) = next(postion) = postion + 2;
+passengerButtonUp  & (postion != 10) : next(postion) = postion + 2 ;
 
-passengerButtonDown  & (postion != 0) = next(postion) = postion - 2 ;
+passengerButtonDown  & (postion != 0) : next(postion) = postion - 2 ;
 
 TRUE: next(postion) = postion + 0;
 esac;
 
 
 -- LTLSPEC
+
+LTLSPEC F((!obstacle & (passengerButtonUp | driverUp)) -> postion = 2);
+
 
