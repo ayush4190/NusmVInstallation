@@ -1,0 +1,57 @@
+-- Power window simulation demonstration using NUSMV
+-- Assumptions
+-- 1. Every second the window moves 2 frames hence the total length of the window is covered in 2 frames.
+-- 2. If any obstacle si encountered we move the window down by 2 frames.
+-- 3. Figure out the logic behind the countinous press and counter to keep track of it.
+
+MODULE main
+VAR
+postion: 0 .. 10;
+obstacle : boolean;
+passengerButtonUp : boolean;
+passengerButtonDown : boolean;
+driverUp: boolean ;
+driverDown: boolean;
+continuouspress : boolean;
+Timer:integer;
+
+ASSIGN
+init(postion): =0;
+init(obstacle): = FALSE ;
+init(passengerButtonUp): = FALSE ;
+init(passengerButtonDown): = FALSE ;
+init(driverUp): = FALSE ;
+init(driverDown): = FALSE ;
+
+TRANS
+case
+-- considering all the cases with obstacles as obstacles has higher priority
+
+ (obstacle & driverUp) & (postion != 0) : next(postion) = postion -2;
+
+obstacle & driverDown : next(postion) = postion + 0 ;
+
+(obstacle & passengerButtonUp) & (postion != 0) : next(postion)= postion - 2 ;
+--
+obstacle & passengerButtonDown : next(postion) = postion + 0;
+
+
+-- considering all the cases with driver side as priority
+
+driverUp & (postion != 10) : next(postion) = postion + 2;
+--
+driverDown  & (postion != 0): next(postion) = postion - 2;
+
+
+--considering all the cases with passenger side
+
+passengerButtonUp  & (postion != 10) = next(postion) = postion + 2;
+
+passengerButtonDown  & (postion != 0) = next(postion) = postion - 2 ;
+
+TRUE: next(postion) = postion + 0;
+esac;
+
+
+-- LTLSPEC
+
