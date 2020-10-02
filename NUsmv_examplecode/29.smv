@@ -1,0 +1,21 @@
+MODULE Name(inp)
+
+VAR
+b : -100 .. 100;
+
+ASSIGN
+init(b) := 10;
+
+next(b) := case
+b < 10 & b > -10 : b+inp;
+TRUE: b;
+esac;
+
+MODULE main
+VAR
+ inp : -10 .. 10;
+ c : Name(10);
+
+
+
+ LTLSPEC G(c < 10)

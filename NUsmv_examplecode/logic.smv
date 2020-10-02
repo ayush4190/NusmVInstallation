@@ -1,0 +1,10 @@
+MODULE main
+VAR
+
+P : boolean;
+Q : boolean;
+R : boolean;
+
+
+LTLSPEC G ()
+

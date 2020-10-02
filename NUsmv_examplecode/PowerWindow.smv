@@ -1,0 +1,49 @@
+-- Power Window demonstration 
+-- duration of 5 seconds is not yet considered yet we need keep an counter and decide on the number of frame movement every second.
+-- if both the booleans are false 
+-- if both the booleans are true then there is something wrong with system
+MODULE main
+VAR
+
+postion: -10 .. 10;
+obs : boolean;
+buttonup : boolean;
+buttonDown : boolean;
+driverUp: boolean ;
+driverDown: boolean;
+
+ASSIGN
+-- position can be anything between 0 -100
+init(postion) :=0;
+buttonDown:= FALSE;
+buttonup:= FALSE;
+-- can be true or false
+obs:= FALSE;
+driverDown:= FALSE;
+driverUp:= FALSE;
+-- at every frame move the window position by 10.
+-- create priority of obs> driver side > passenger side .
+TRANS
+case
+-- if the passenger side button is up and (no onstacle is found and the driver side button is not down) roll up the window completely
+(buttonup & (!obs)) & (!driverDown)  : next(postion) = 10;
+-- if the passenger side button is up and (there is a obstacle  and the window is not fully up then ) reduce the height of the window by one frame.
+(buttonup & obs) & (postion != 10): next(postion) = postion -1;
+-- if the passenger side is up but the driver side button is down and no obstacle is there then lower the window completely
+(buttonup & (driverDown & !obs) : next(postion) = 0 ;
+-- if the passenger side button is down and position is not equal to 0 already and driver side button is not up then roll down the window completey 
+(buttonDown & (postion!= 0)) & (!driverUp) : next(postion) =0;
+-- if the passenger side button is down and you find a obstacle below the window in form of dust, etc.. and the window is not fully rolled up, roll up the window by one frame
+(buttonDown & ((postion != 0) & (postion != 10)): next(postion) = postion + 0; 
+--  if the Driver side button is up and no obstacle is there close the window
+(driverUp & (!obs & (postion!=10)): next(postion) = 10;
+-- if the Driver side is down and the window is not already open lower the window completely
+(driverDown & (postion!=0)) : next(postion) = 0;
+--Rest of the cases if any
+TRUE: next(postion) = postion + 0;
+esac;
+
+--LTLSPEC
+
+
+

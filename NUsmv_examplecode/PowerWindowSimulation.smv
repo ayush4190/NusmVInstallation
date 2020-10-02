@@ -12,10 +12,7 @@ passengerButtonUp : boolean;
 passengerButtonDown : boolean;
 driverUp: boolean ;
 driverDown: boolean;
-continuouspressUp : boolean;
-continuouspressDown : boolean;
-passengerContinousUp : boolean;
-passengerContinousDown : boolean ;
+continuouspress : boolean;
 counter : 0 .. 10;
 
 
@@ -39,36 +36,20 @@ obstacle & passengerButtonDown : next(postion) = postion + 0;
 -- considering all the cases with driver side as priority
 
 -- implementing the continous press 
-postion = 10  : next(continuouspressUp)= FALSE  & next(passengerButtonUp) = FALSE ;
+(postion = 10 | postion =0) : next(continuouspress)= FALSE ;
 
-postion = 0 : next(continuouspressDown) = FALSE  & next(passengerButtonDown) = FALSE ;
+driverUp & next(driverUp) : ((next(postion) = postion + 2 ) & ()) & (next(continuouspress) = TRUE);
 
-driverUp & next(driverUp) : (next(postion) = postion + 2 )  & (next(continuouspressUp) = TRUE); -- counter needs to be added
-
-continuouspressUp & (postion != 10) : (next(counter) = counter + 1) & (next(postion) = postion + 2); -- increment counter
+continuouspress & (postion != 10) : (next(counter) = counter + 1) & (next(postion) = postion + 2);
 
 driverUp & (postion != 10) : next(postion) = postion + 2;
--- how to keep track of the counter in the driverDown condition
-driverDown & next(driverDown) : (next(postion) = postion - 2) ; -- counter needs to be added 
-
-
 --
 driverDown  & (postion != 0): next(postion) = postion - 2;
 
 
 --considering all the cases with passenger side
 
---counter needs to be implemented
-
-passengerButtonUp & next(passengerButtonUp) : (next(postion) = postion + 2) & (next(passengerContinousUp) = TRUE); -- counter needs to be added
-
-passengerContinousUp & (postion != 10) : (next(postion) = postion + 2); -- increment counter
-
 passengerButtonUp  & (postion != 10) : next(postion) = postion + 2 ;
-
-passengerButtonDown & next(passengerButtonDown) : (next(postion) = postion - 2) & (next(passengerContinousDown) = TRUE); -- counter needs to be added
-
-passengerContinousDown & (postion != 0) : next(postion) = postion - 2 ;  -- increment counter
 
 passengerButtonDown  & (postion != 0) : next(postion) = postion - 2 ;
 

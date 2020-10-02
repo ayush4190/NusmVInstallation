@@ -1,0 +1,18 @@
+MODULE main
+VAR
+test : boolean;
+right : boolean;
+output : boolean ;
+
+ASSIGN
+init(test) := FALSE;
+
+TRANS
+case
+right & next(right) : next(test) = TRUE;
+
+
+TRUE: next(test)= FALSE;
+esac
+
+LTLSPEC F( (right = TRUE) -> (next(right) = !TRUE) );

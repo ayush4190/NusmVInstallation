@@ -1,0 +1,42 @@
+-- Delay OnOff with different delays
+
+MODULE Delay_OnOff(input, countT, countF)
+
+VAR
+counterF : 0 .. 100;
+counterT : 0 .. 100;
+output : boolean;
+temp : boolean;
+
+ASSIGN
+init(output) := FALSE;
+init(counterF) := 0;
+init(counterT) := 0;
+
+
+TRANS
+case
+(counterT > countT) & input : next(counterT) = countT+1;
+(counterF > countF) & !input : next(counterF) = countF+1;
+input : (next(counterT) = counterT + 1) & (next(counterF) = 0);
+!input : (next(counterF) = counterF + 1) & (next(counterT) = 0);
+TRUE : temp = FALSE;
+esac;
+
+TRANS
+case
+(counterT >= countT) & input: next(output) = TRUE;
+(counterF >= countF) & !input: next(output) = FALSE;
+TRUE : next(output) = output;
+esac;
+
+
+MODULE main
+VAR
+input : boolean;
+a : Delay_OnOff(input, 10, 20);
+b : Delay_OnOff(input, 11, 19);
+
+
+LTLSPEC G (a.output = b.output);
+

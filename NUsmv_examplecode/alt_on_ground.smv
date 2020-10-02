@@ -1,0 +1,73 @@
+-- alternate on ground
+-- if 2 out of three WOW are TRUE then on ground is true
+-- if cas > 70 or alt > 150 then on ground is false (20 frames)
+-- if cas < 60 and alt < 100 then on ground is true (10 frames)
+
+MODULE Delay_OnOff(input, countT, countF)
+
+VAR
+counterF : 0 .. 100;
+counterT : 0 .. 100;
+output : boolean;
+
+ASSIGN
+init(output) := TRUE;
+init(counterF) := 0;
+init(counterT) := 0;
+
+
+next(counterT) := case
+((counterT > countT) & input) : countT+1;
+input : counterT + 1;
+TRUE : 0;
+esac;
+
+next(counterF) := case
+((counterF > countF) & !input) : countF+1;
+!input : counterF + 1;
+TRUE : 0;
+esac;
+
+
+next(output) := case
+(counterT >= countT) & input: TRUE;
+(counterF >= countF) & !input: FALSE;
+TRUE : output;
+esac;
+
+
+MODULE main
+VAR
+cas : 0 .. 300;
+alt : 0 .. 3000;
+
+wowl : boolean;
+wowm : boolean;
+wowr : boolean;
+
+ognd : boolean;
+onground : boolean;
+altgrnd : boolean;
+a : Delay_OnOff(altgrnd, 10, 20);
+
+ASSIGN
+onground := case
+wowl & wowm & wowr : TRUE;
+wowl & wowm : TRUE;
+wowm & wowr : TRUE;
+wowl & wowr : TRUE;
+TRUE : FALSE;
+esac;
+
+altgrnd := case
+(cas < 60) & (alt < 100) : TRUE;
+(cas > 70) | (alt > 150) : FALSE;
+TRUE : TRUE;
+esac;
+
+ognd := a.output | onground;
+
+LTLSPEC G (((toint(wowm) + toint(wowl) + toint(wowr)) >= 2)-> (ognd))
+LTLSPEC F (((cas < 69) & (alt < 149)) -> (ognd = TRUE));
+LTLSPEC F ((cas < 60) -> (ognd = FALSE));
+

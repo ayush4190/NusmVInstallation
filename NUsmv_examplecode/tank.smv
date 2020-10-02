@@ -1,0 +1,29 @@
+MODULE main
+VAR
+h1: 0 .. 300;
+h2: 0 .. 300;
+tapon: boolean;
+full: boolean;
+
+ASSIGN
+init(h2):= 100 .. 300;
+init(h1):= 200 .. 300 ;
+
+full :=case
+h2 >= 300 :TRUE;
+TRUE: FALSE;
+esac;
+
+next(h1):=case
+h1<=0 : 0;
+tapon :h1 - 1;
+TRUE: h1;
+esac;
+
+next(h2) :=case
+h2>=300:300;
+tapon & (h1>0) :h2+1;
+TRUE:h2;
+esac;
+
+LTLSPEC F((tapon) -> (full));

@@ -1,0 +1,38 @@
+-- A simple two tank problem
+MODULE main
+VAR
+h1 : 0 .. 300;  -- tank1
+h2 : 0 .. 300;  -- tank2
+tapon : boolean;  -- this is pump that fills 
+--                -- H2 tank and depletes H1 tank
+full : boolean;
+
+ASSIGN
+init(h2)  := 100 .. 300;
+init(h1)  := 100 .. 300;
+
+full := case
+h2 >= 300 : TRUE;
+TRUE : FALSE;
+esac;
+
+
+-- this is a drain tank
+next(h1) := case
+h1 <= 0: 0;
+tapon : h1 - 1;
+TRUE : h1;
+esac;
+
+-- this is a fill tank
+next(h2) := case
+h2 >= 300: 300;
+tapon & (h1 > 0) : h2 + 1; -- H1 should have 
+                           -- liquid to pump up
+TRUE : h2;
+esac;
+
+
+LTLSPEC F ((tapon) -> (full));
+
+

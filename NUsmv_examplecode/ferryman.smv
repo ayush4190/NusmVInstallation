@@ -1,0 +1,54 @@
+-- The ferry man example
+
+MODULE main
+VAR
+
+ferryman : {initial,destination};
+goat : {initial,destination};
+cabbage : {initial,destination};
+wolf : {initial,destination};
+carry : {g,c,w,none};
+
+ASSIGN
+init(ferryman) := initial;
+init(goat) := initial;
+init(cabbage) := initial;
+init(wolf) := initial;
+init(carry) := none; 
+
+next(ferryman) := {initial,destination};
+
+next(carry) :=
+case
+ferryman = goat : g;
+TRUE : none;
+esac union
+
+case
+ferryman = cabbage : c;
+TRUE : none;
+esac union
+case
+
+ferryman = wolf : w;
+TRUE : none;
+esac union none;
+
+next(goat) := case
+ferryman = goat & next(carry) = g : next(ferryman);
+TRUE : goat;
+esac;
+
+next(cabbage) := case
+ferryman = cabbage & next(carry) = c : next(ferryman);
+TRUE : cabbage;
+esac;
+
+next(wolf) := case
+ferryman = wolf & next(carry) = w : next(ferryman);
+TRUE : wolf;
+esac;
+
+LTLSPEC !( ( (goat = cabbage | goat = wolf) -> goat = ferryman)
+U (goat = destination & cabbage = destination &
+wolf = destination & ferryman = destination))

@@ -1,0 +1,132 @@
+MODULE main
+VAR
+
+BT_AP : boolean;
+BT_SPD : boolean;
+BT_VS : boolean;
+BT_ALT : boolean;
+ST_ALTS : boolean;
+ST_ALTCAP : boolean;
+ST_ALTCPDN : boolean;
+ST_APFAIL : boolean;
+
+C1 : boolean;
+C3 : boolean;
+C4: boolean;
+C5: boolean;
+
+state_V : { V_DIS, V_PAH ,V_SPDHOLD , V_VS ,V_ALTHOLD ,V_ALTSCAP };
+state_AP : { AP_ON, AP_OFF };
+state_ALTS : { ALTS_OFF, ALTS_ARM , ALTS_SELCAP };
+
+ASSIGN
+init(state_V) := V_DIS;
+init(state_AP) := AP_OFF;
+init(state_ALTS) := ALTS_OFF;
+next(state_V) := case
+state_V = V_PAH & BT_VS & C1 : V_PAH;
+state_V = V_DIS & BT_AP & C2  : V_DIS;
+state_V = V_PAH & BT_SPD & C3  : V_SPDHOLD;
+state_V = V_PAH & BT_VS & C4  : V_VS;
+         --5) If in State PAH AND Trigger ALT occurs THEN transit to ALT HOLD if condition C5 Is TRUE
+state_V = V_PAH & BT_ALT & C5  : V_ALTHOLD;
+         --6) If in State PAH AND Trigger ALTCAP occurs THEN transit to ALTS CAP if condition [No Conditionrequired] Is TRUE
+state_V = V_PAH & ST_ALTCAP  : V_ALTSCAP;
+         --7)If in State PAH AND Trigger APFAIL occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_PAH & ST_APFAIL & C2  : V_DIS;
+         --8) If in State SPD HOLD AND Trigger AP occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_SPDHOLD & BT_AP & C2  : V_DIS;
+         --9) If in State SPD HOLD AND Trigger SPD occurs THEN transit to PAH if condition [No Condition required] Is TRUE
+state_V = V_SPDHOLD & BT_SPD  : V_PAH;
+         --10) If in State SPD HOLD AND Trigger VS occurs THEN transit to VS if condition C4 Is TRUE
+state_V = V_SPDHOLD & BT_VS & C4  : V_VS;
+         --11) If in State SPD HOLD AND Trigger ALT occurs THEN transit to ALT HOLD if condition C5 Is TRUE
+state_V = V_SPDHOLD & BT_ALT & C5  : V_VS;
+         --12) If in State SPD HOLD AND Trigger ALTCAP occurs THEN transit to ALTS CAP if condition [No Conditionrequired] Is TRUE
+state_ALTS = V_SPDHOLD & ST_ALTCAP   : ALTS_SELCAP;
+         --13) If in State SPD HOLD AND Trigger APFAIL occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_SPDHOLD & ST_APFAIL & C2   : V_DIS;
+         --14) If in State VS AND Trigger AP occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_VS & BT_AP & C2   : V_DIS;
+         --15) If in State VS AND Trigger SPD occurs THEN transit to SPD HOLD if condition C3 Is TRUE
+state_V = V_VS & BT_SPD & C2   : V_SPDHOLD;
+         --16) If in State VS AND Trigger VS occurs THEN transit to PAH if condition [No Condition required] Is TRUE
+state_V = V_VS & BT_VS  : V_SPDHOLD;
+         --17) If in State VS AND Trigger ALT occurs THEN transit to ALT HOLD if condition C5 Is TRUE
+state_V = V_VS & ST_ALTS & C5  : V_ALTHOLD;
+         --18) If in State VS AND Trigger ALTCAP occurs THEN transit to ALTS CAP if condition [No Condition required] Is TRUE
+state_V = V_VS & ST_ALTCAP  : V_ALTHOLD;
+         --19) If in State VS AND Trigger APFAIL occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_VS & ST_APFAIL   : V_DIS;			 
+         --20) If in State ALT HOLD AND Trigger AP occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_ALTHOLD & BT_AP & C2   : V_DIS;	
+         --21) If in State ALT HOLD AND Trigger SPD occurs THEN transit to SPD HOLD if condition C3 Is TRUE
+state_V = V_ALTHOLD & BT_SPD & C3   : V_SPDHOLD;
+         --22) If in State ALT HOLD AND Trigger VS occurs THEN transit to VS if condition C4 Is TRUE
+state_V = V_ALTHOLD & BT_VS & C4   : V_VS;
+         --23) If in State ALT HOLD AND Trigger ALT occurs THEN transit to PAH if condition [No Condition required] Is TRUE
+state_V = V_ALTHOLD & BT_ALT   : V_PAH;
+         --24) If in State ALT HOLD AND Trigger APFAIL occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_ALTHOLD & ST_APFAIL  & C2  : V_DIS;
+         --25) If in State ALTS CAP AND Trigger AP occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_ALTSCAP & BT_AP  & C2  : V_DIS;
+         --26) If in State ALTS CAP AND Trigger ALT occurs THEN transit to ALT HOLD if condition C5 Is TRUE
+state_V = V_ALTSCAP & BT_ALT  & C5  : V_SPDHOLD;
+         --27) If in State ALTS CAP AND Trigger ALTCPDN occurs THEN transit to ALT HOLD if condition [No Condition required] Is TRUE
+state_V = V_ALTSCAP & ST_ALTCPDN  : V_SPDHOLD;
+         --28) If in State ALTS CAP AND Trigger APFAIL occurs THEN transit to DIS(Vertical) if condition C2 Is TRUE
+state_V = V_ALTSCAP & ST_APFAIL & C2  : V_DIS;
+
+TRUE : state_V;
+esac;
+
+next(state_AP) := case
+         --29) If in State AP ON AND Trigger AP occurs THEN transit to AP OFF if condition [No Condition required] Is TRUE
+state_AP = AP_ON & BT_AP  : AP_OFF;
+         --30) If in State AP ON AND Trigger APFAIL occurs THEN transit to AP OFF if condition [No Condition required] Is TRUE
+state_AP = AP_ON & ST_APFAIL  : AP_OFF;
+         --31) If in State AP OFF AND Trigger AP occurs THEN transit to AP ON if condition C1 Is TRUE
+state_AP = AP_OFF & BT_AP &C1  : AP_ON;
+
+TRUE : state_AP;
+esac;
+
+next(state_ALTS) := case
+         --32) If in State ALTS OFF AND Trigger ALTS occurs THEN transit to ALTS ARM if condition [No Conditionrequired] Is TRUE
+state_ALTS = ALTS_OFF & ST_ALTS   : ALTS_SELCAP;
+         --33) If in State ALTS ARM AND Trigger AP occurs THEN transit to ALTS OFF if condition C2 Is TRUE
+state_ALTS = ALTS_ARM & BT_AP   : ALTS_OFF;
+         --34) If in State ALTS ARM AND Trigger ALT occurs THEN transit to ALTS OFF if condition C5 Is 
+state_ALTS = ALTS_ARM & BT_AP &  C5  : ALTS_OFF;
+         --35) If in State ALTS ARM AND Trigger ALTS occurs THEN transit to ALTS OFF if condition [No Condition required] Is TRUE
+state_ALTS = ALTS_ARM & ST_ALTS   : ALTS_OFF;
+         --36) If in State ALTS ARM AND Trigger ALTCAP occurs THEN transit to ALTSEL CAP if condition [No Condition required] Is TRUE
+state_ALTS = ALTS_ARM & ST_ALTCAP  : ALTS_ARM;
+         --37) If in State ALTS ARM AND Trigger APFAIL occurs THEN transit to ALTS OFF if condition C2 Is TRUE
+state_ALTS = ALTS_ARM & ST_APFAIL   : ALTS_OFF;
+         --38) If in State ALTSEL CAP AND Trigger AP occurs THEN transit to ALTS OFF if condition C2 Is TRUE
+state_ALTS = ALTS_ARM & BT_AP & C2   : ALTS_OFF;
+         --39) If in State ALTSEL CAP AND Trigger ALT occurs THEN transit to ALTS OFF if condition C5 Is TRUE
+state_ALTS = ALTS_SELCAP & BT_ALT & C5   : ALTS_OFF;
+         --40) If in State ALTSEL CAP AND Trigger ALTCPDN occurs THEN transit to ALTS OFF if condition [No Condition required] Is TRUE
+state_ALTS = state_ALTS & ST_ALTCPDN   : ALTS_OFF;
+         --41) If in State ALTSEL CAP AND Trigger APFAIL occurs THEN transit to ALTS OFF if condition C2 Is 
+state_ALTS = ALTS_SELCAP & ST_APFAIL  = TRUE : ALTS_OFF;
+
+		 
+TRUE : state_ALTS;
+esac;
+
+
+DEFINE
+C2 := state_AP = AP_OFF;
+
+
+LTLSPEC G (( state_ALTS = ALTS_SELCAP & BT_ALT & C5 )-> X state_ALTS = ALTS_OFF)
+
+LTLSPEC G (( state_V = V_ALTSCAP )<-> state_ALTS = ALTS_SELCAP)
+LTLSPEC G (( state_V = V_ALTHOLD ) <-> state_ALTS = ALTS_OFF)
+LTLSPEC G (( state_V = V_DIS ) <-> state_AP = AP_OFF)
+LTLSPEC G (( state_V = V_DIS ) <-> state_ALTS = ALTS_OFF)
+
+--LTLSPEC G (( ST_APFAIL = TRUE | BT_AP = TRUE )-> X state_V = V_DIS )

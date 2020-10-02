@@ -1,0 +1,18 @@
+MODULE main
+VAR
+ a : -100 .. 100;
+
+ASSIGN
+ init(a) := -100 .. 59;
+
+TRANS
+case
+(a<60) : next(a) = a + 10 ;
+TRUE : next(a) = a + 0 ;
+esac
+
+LTLSPEC F(a<60)
+LTLSPEC G(a>60)
+LTLSPEC X(a<60)
+LTLSPEC G(a <60)
+

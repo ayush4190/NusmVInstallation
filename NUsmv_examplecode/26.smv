@@ -1,0 +1,20 @@
+MODULE main
+VAR
+ a : -100 .. 100;
+
+ASSIGN
+ init(a) := -40 .. 40;
+
+
+TRANS
+case
+((a<60) & (a> -40)) : next(a) = {a - 1 , a + 10};
+-- IF a < 60 AND a > -40 THEN the next a can be randomly selected to be  a-1 or a+10
+TRUE : next(a) = a + 0; 
+-- ELSE the next a is not updated
+esac
+-- The following LTLSPEC is falsified.
+LTLSPEC X( a!= 51)
+LTLSPEC G(a < 71)
+LTLSPEC G (a!= 51)
+LTLSPEC F(a!= 51)

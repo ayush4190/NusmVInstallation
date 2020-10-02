@@ -1,0 +1,24 @@
+MODULE main
+VAR
+ c : -1 .. 12;
+ fail : boolean;
+
+ASSIGN
+ init(c) := 0;
+
+TRANS
+case
+(fail & (c <  10 )) : next(c) = c + 2;
+-- IF fail AND c is less than 10 THEN next c is c+2
+(!fail & (c > 0 )) : next(c) = c - 1;
+-- ELSEIF not fail AND c is greater than 0 THEN next c is c-1
+TRUE: next(c) = c + 0;
+-- ELSE next c is not updated
+esac
+
+DEFINE
+valid:=(c = 0);
+
+LTLSPEC F( (!fail) -> valid)
+
+

@@ -1,0 +1,32 @@
+-- a simple problem with numbers
+
+MODULE main
+VAR
+ 
+sum : -1000 .. 1000;
+sum1 : -1000 .. 1000; 
+
+sg : boolean;
+add3 : boolean;
+add5 : boolean;
+add11 : boolean;
+
+ASSIGN
+init(sum) :=0;
+init(sum1) :=0;
+
+TRANS
+case
+sg & add3 : (next(sum) = sum - 3) & (next(sum1) = sum1 - 3);
+sg & add5 : (next(sum) = sum - 5) & (next(sum1) = sum1 - 5);
+sg & add11 : (next(sum) = sum - 11) & (next(sum1) = sum1 - 11);
+add3 : (next(sum) = sum + 3) & (next(sum1) = sum1 + 3);
+add5 : (next(sum) = sum + 5) & (next(sum1) = sum1 + 5);
+add11 : (next(sum) = sum + 11) & (next(sum1) = sum1 + 11);
+TRUE : (next(sum) = sum + 0) & (next(sum1) = sum1 + 0);
+esac;
+
+ 
+-- Put LTLSPEC here - Example
+LTLSPEC G (sum != 4)
+LTLSPEC G (sum1 != 36)

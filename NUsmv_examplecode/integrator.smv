@@ -1,0 +1,54 @@
+-- Integrator Example
+
+MODULE integrate_w(input, ulimit, llimit)
+
+VAR
+  
+output : -500 .. 500;
+inter : -500 .. 500;
+
+ASSIGN
+init(inter) := 0;   -- intermediate value
+init(output) := 0;  -- output of module
+
+TRANS
+case
+inter > 300: next(inter) = 300;   -- a protection limit
+inter < -300: next(inter) = -300;
+TRUE : next(inter) = inter+input;
+esac;
+
+TRANS
+case
+inter >= ulimit: next(output) = ulimit;
+inter <= llimit: next(output) = llimit;
+TRUE : next(output) = next(inter);
+esac;
+
+
+
+MODULE integrate_c(input, ulimit, llimit)
+
+VAR
+  
+output : -500 .. 500;
+
+ASSIGN
+init(output) := 0;  
+
+TRANS
+case
+output >= ulimit: next(output) = ulimit;
+output <= llimit: next(output) = llimit;
+TRUE : next(output) = output+input;
+esac;
+
+
+MODULE main
+VAR
+input : {-10, 10};
+a : integrate_c(input, 100, -100);
+b : integrate_w(input, 100, -100);
+
+LTLSPEC G (a.output != b.output);
+

@@ -1,0 +1,93 @@
+-- Delay On, Delay Off and Delay OnOff
+
+MODULE Delay_On(input, countT)
+
+VAR
+counter : 0 .. 100;
+output : boolean;
+
+ASSIGN
+init(output) := FALSE;
+init(counter) := 0;
+
+next(counter) := case
+(counter > countT) & input : countT+1;
+input : counter + 1;
+TRUE :  0;
+esac;
+
+next(output) := case
+(counter >= countT) & input:  TRUE;
+!input : FALSE;
+TRUE : output;
+esac;
+
+
+-- ------------------------------------------------------------
+MODULE Delay_Off(input, countF)
+
+VAR
+counter : 0 .. 100;
+output : boolean;
+
+ASSIGN
+init(output) := TRUE;
+init(counter) := 0;
+
+next(counter) := case
+(counter > countF) & !input : countF+1;
+!input : counter + 1;
+TRUE :  0;
+esac;
+
+next(output) := case
+(counter >= countF) & !input:  FALSE;
+input : TRUE;
+TRUE : output;
+esac;
+
+-- ----------------------------------------------------------
+MODULE Delay_OnOff(input, countT, countF)
+
+VAR
+counterF : 0 .. 100;
+counterT : 0 .. 100;
+output : boolean;
+temp : boolean;
+
+ASSIGN
+init(output) := TRUE;
+init(counterF) := 0;
+init(counterT) := 0;
+
+
+next(counterT) := case
+((counterT > countT) & input) : countT+1;
+input : counterT + 1;
+TRUE : 0;
+esac;
+
+next(counterF) := case
+((counterF > countF) & !input) : countF+1;
+!input : counterF + 1;
+TRUE : 0;
+esac;
+
+
+next(output) := case
+(counterT >= countT) & input: TRUE;
+(counterF >= countF) & !input: FALSE;
+TRUE : output;
+esac;
+
+
+MODULE main
+VAR
+input : boolean;
+a : Delay_On(input, 10);
+b : Delay_Off(a.output, 20);
+
+c : Delay_OnOff(input, 10, 20);
+
+LTLSPEC G (b.output = c.output);
+

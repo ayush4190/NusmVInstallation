@@ -1,0 +1,19 @@
+-- my first error
+
+MODULE main
+VAR
+ 
+theta : -30 .. 30;
+auto_dest : boolean;
+
+ASSIGN
+auto_dest := case
+-- (abs(theta) >= 25): TRUE;   -- remove the comments and connect the below line
+((theta) >= 25): TRUE;  -- this is the erroneous logic
+TRUE: FALSE;
+esac;
+
+ 
+-- Put LTLSPEC here - Example
+LTLSPEC G (((theta) >= 25 )-> auto_dest)
+LTLSPEC G (((theta) <= -25 )-> auto_dest)
