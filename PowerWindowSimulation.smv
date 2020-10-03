@@ -23,36 +23,37 @@ counter : 0 .. 10;
 ASSIGN
 init(postion) :=0;
 init(counter) :=0;
+init(continuouspressDown):= FALSE;
+init(continuouspressUp) :=FALSE;
+init(passengerContinousDown) :=FALSE;
+init(passengerContinousUp) :=FALSE;
 
 TRANS
 case
 -- considering all the cases with obstacles as obstacles has higher priority
 
-(obstacle & driverUp) & (postion != 0) : next(postion) = postion - 2;
+(obstacle & driverUp) & (postion != 0) : next(postion) = postion - 2 & next(counter) = 0;
 
-obstacle & driverDown : next(postion) = postion + 0 ;
+obstacle & driverDown : next(postion) = postion + 0  & next(counter) = 0;
 
-(obstacle & passengerButtonUp) & (postion != 0) : next(postion)= postion - 2 ;
+(obstacle & passengerButtonUp) & (postion != 0) : next(postion)= postion - 2  & next(counter) = 0;
 --
-obstacle & passengerButtonDown : next(postion) = postion + 0;
+obstacle & passengerButtonDown : next(postion) = postion + 0 & next(counter) = 0;
 
 
 -- considering all the cases with driver side as priority
 
 -- implementing the continous press 
--- (postion = 10)  : next(continuouspressUp)= FALSE  & next(passengerContinousUp) = FALSE ;
 
--- (postion = 0 ): next(continuouspressDown) = FALSE  & next(passengerContinousDown) = FALSE ;
+driverUp & next(driverUp) & (postion != 10) : (next(postion) = postion + 2 )  & (next(continuouspressUp) = TRUE); 
 
-driverUp & next(driverUp) : (next(postion) = postion + 2 )  & (next(continuouspressUp) = TRUE); -- counter needs to be added
-
-continuouspressUp & (postion != 10) : (next(counter) = counter + 1) & (next(postion) = postion + 2); -- increment counter
+continuouspressUp & (postion != 10) : (next(counter) = counter + 1) & (next(postion) = postion + 2); -- counter added
 
 driverUp & (postion != 10) : next(postion) = postion + 2;
 -- how to keep track of the counter in the driverDown condition
-driverDown & next(driverDown) : next(postion) = postion - 2 & next(continuouspressDown) = TRUE ; -- counter needs to be added 
+driverDown & next(driverDown) : next(postion) = postion - 2 & next(continuouspressDown) = TRUE ; 
 
-continuouspressDown : next(postion) = postion -2; -- increment counter here
+continuouspressDown : next(postion) = postion -2  & next(counter) = counter + 1;  -- counter added
 
 --
 driverDown  & (postion != 0): next(postion) = postion - 2;
@@ -62,15 +63,15 @@ driverDown  & (postion != 0): next(postion) = postion - 2;
 
 --counter needs to be implemented
 
-passengerButtonUp & next(passengerButtonUp) : (next(postion) = postion + 2) & (next(passengerContinousUp) = TRUE); -- counter needs to be added
+passengerButtonUp & next(passengerButtonUp) & (postion != 10): (next(postion) = postion + 2) & (next(passengerContinousUp) = TRUE);
 
-passengerContinousUp : (next(postion) = postion + 2); -- increment counter
+passengerContinousUp : (next(postion) = postion + 2) & next(counter)= counter + 1; --counter added
 
 passengerButtonUp  & (postion != 10) : next(postion) = postion + 2 ;
 
-passengerButtonDown & next(passengerButtonDown) : (next(postion) = postion - 2) & (next(passengerContinousDown) = TRUE); -- counter needs to be added
+passengerButtonDown & next(passengerButtonDown) : (next(postion) = postion - 2) & (next(passengerContinousDown) = TRUE); 
 
-passengerContinousDown  : next(postion) = postion - 2 ;  -- increment counter
+passengerContinousDown  : next(postion) = postion - 2 & next(counter)= counter + 1 ;  --counter added
 
 passengerButtonDown  & (postion != 0) : next(postion) = postion - 2 ;
 
@@ -82,8 +83,19 @@ esac;
 
 LTLSPEC F((!obstacle & (passengerButtonUp | driverUp)) -> postion = 2);
 
-LTLSPEC F ((!obstacle & driverUp) -> (postion = 10));
+LTLSPEC G ((!obstacle & driverUp & continuouspressUp) -> (postion != 10));
 
 LTLSPEC F(obstacle & (driverUp  | passengerButtonUp) -> postion = 10);
+
+LTLSPEC F(!obstacle & (continuouspressUp & counter <= 5) -> postion = 10);
+
+LTLSPEC F(!obstacle -> (postion = 10 | postion = 0));
+
+LTLSPEC F(!obstacle & postion =10 -> counter <= 5);
+
+LTLSPEC F(!obstacle & postion =0 -> counter <= 5);
+
+LTLSPEC F(!obstacle & driverUp -> postion = 12);
+
 
 
